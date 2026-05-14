@@ -11,6 +11,7 @@ public class Game1 : Game
 
   // Simulation Settings
   private World _world;
+  private Brush _brush;
   private Texture2D _gridTexture;
   private Color[] _colorBuffer;
   
@@ -32,6 +33,7 @@ public class Game1 : Game
   protected override void Initialize()
   {
     _world = new World(GridWidth, GridHeight);
+    _brush = new Brush();
     
     // The texture we use to "paint" the grid to the screen
     _gridTexture = new Texture2D(GraphicsDevice, GridWidth, GridHeight);
@@ -50,13 +52,37 @@ public class Game1 : Game
       Exit();
 
     var mouseState = Mouse.GetState();
+    var kbState = Keyboard.GetState();
+
+
+    //Adjusting Brush size
+    if (kbState.IsKeyDown(Keys.Up)) _brush.Size++;
+    if (kbState.IsKeyDown(Keys.Down) && _brush.Size > 0) _brush.Size--;
+
+    // Changing brush type
+    if (kbState.IsKeyDown(Keys.Q)) _brush.SelectedType = ParticleType.Sand;
+    if (kbState.IsKeyDown(Keys.W)) _brush.SelectedType = ParticleType.Water;
+
+    //Shortcuts
+    //Reset
+    if (kbState.IsKeyDown(Keys.R))
+    {
+      for (int y = 0; y < GridHeight; y++)
+      {
+        for (int x = 0; x < GridWidth; x++)
+        {
+          _world.SetCell(x, y, ParticleType.Air);
+        }
+      }
+    }
 
     if (mouseState.LeftButton == ButtonState.Pressed)
-      {
+    {
       int gridX = mouseState.X / Scale;
       int gridY = mouseState.Y / Scale;
-      _world.SetCell(gridX, gridY, ParticleType.Sand); // Places
-      }
+
+      _brush.Draw(gridX, gridY, _world);
+    }
 
     _world.Update();
     base.Update(gameTime);
