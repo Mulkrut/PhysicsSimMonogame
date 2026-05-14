@@ -1,13 +1,17 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using System.ComponentModel;
-
 namespace Physics_Sim;
 
-public class Gravity : Component
+public static class Gravity
 {
-  public float Force = 12312312f;
-
-  public void Velocity;
+  public static void Apply(ref Particle p)
+  {
+    if (p.IsFalling)
+    {
+      // Use small increments since this runs every frame
+      p.VelocityY += 0.1f;
+    }
+    else
+    {
+      p.VelocityY = 0;
+    }
+  }
 }

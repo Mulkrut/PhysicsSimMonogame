@@ -18,8 +18,7 @@ public class Game1 : Game
   private const int GridHeight = 150;
   private const int Scale = 6; // Scale up the pixels for visibility
 
-  // texture region that defines the slime sprite in the atlas.
-  public Game1()
+    public Game1()
   {
     _graphics = new GraphicsDeviceManager(this);
     Content.RootDirectory = "Content";
@@ -56,7 +55,7 @@ public class Game1 : Game
       {
       int gridX = mouseState.X / Scale;
       int gridY = mouseState.Y / Scale;
-      _world.SetCell(gridX, gridY, 1); // Places
+      _world.SetCell(gridX, gridY, ParticleType.Sand); // Places
       }
 
     _world.Update();
@@ -65,22 +64,18 @@ public class Game1 : Game
 
   protected override void Draw(GameTime gameTime)
   {
-  GraphicsDevice.Clear(Color.Black);
+    GraphicsDevice.Clear(Color.Black);
 
-  // 1. Convert the World grid into Colors for the texture
-  int[,] currentGrid = _world.GetGrid();
-  for (int y = 0; y < GridHeight; y++)
-  {
-    for (int x = 0; x < GridWidth; x++)
+    Particle[,] currentGrid = _world.GetGrid();
+
+    for (int y = 0; y < GridHeight; y++)
     {
-      int cellType = currentGrid[x, y];
-      Color cellColor = cellType switch
+      for (int x = 0; x < GridWidth; x++)
       {
-        1 => Color.SandyBrown,
-        _ => Color.Transparent // Air
-      };
+        Particle p = currentGrid[x, y];
+        Color cellColor = (p.Type == ParticleType.Air) ? Color.Transparent : p.Color;
 
-      _colorBuffer[y * GridWidth + x] = cellColor;
+        _colorBuffer[y * GridWidth + x] = cellColor;
     }
   }
 
