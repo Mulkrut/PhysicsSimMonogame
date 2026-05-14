@@ -2,7 +2,7 @@
 // using Microsoft.Xna.Framework.Graphics;
 // using System.Collections.Generic;
 
-// namespace Physics_Game;
+// namespace Physics_Sim;
 
 // //Yoinked fra Silvija
 // public class Entity

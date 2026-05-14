@@ -16,7 +16,7 @@ public class Game1 : Game
   
   private const int GridWidth = 200;
   private const int GridHeight = 150;
-  private const int Scale = 4; // Scale up the pixels for visibility
+  private const int Scale = 6; // Scale up the pixels for visibility
 
   // texture region that defines the slime sprite in the atlas.
   public Game1()
