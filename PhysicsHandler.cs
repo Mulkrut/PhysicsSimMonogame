@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 
 namespace Physics_Sim;
 
@@ -87,15 +88,23 @@ public static class PhysicsHandler
   }
 
 
-
   private static void HandleWaterMovement(int x, int y, World world, ref Particle p)
   {
 
     // 1. SLEEP CHECK: If already settled, don't even look at it
-    if (!world.CanMove(x, y + 1) && !world.CanMove(x + 1, y + 1) && !world.CanMove(x - 1, y + 1))
+    if (p.SettleCount >= 10 && !world.CanMove(x, y + 1) && !world.CanMove(x + 1, y + 1) && !world.CanMove(x - 1, y + 1))
     {
+      if (world.CanMove(x + 1,y) || world.CanMove(x - 1, y) && p.IsFalling == false)
+      {
+        //test coloring
+        p.Color = new Microsoft.Xna.Framework.Color(116, 204, 244);
+        //if (TryFlowSide(x, y, 1, 2, world, ref p)) return;
+      }
+      else
+      {
       world.SetNextGrid(x, y, p); // Keep it where it is
       return;
+      }
     }
 
     // 2. GRAVITY & VERTICAL FALL
@@ -131,25 +140,10 @@ public static class PhysicsHandler
       return;
     }
 
-    // 4. HORIZONTAL SLIDING (water mode)
 
-
-    for (int i = 1; i <= flowRange; i++)
-    {
-      if (world.CanMove(x + (dir * i), y))
-      {
-        world.MoveParticle(x, y, x + (dir * i), y, p);
-        return;
-      }
-      if (world.CanMove(x - (dir * i), y))
-      {
-        world.MoveParticle(x, y, x - (dir * i), y, p);
-        return;
-      }
-    }
+    int flowRange = 20;    
 
     if (TryFlowSide(x, y, dir, flowRange, world, ref p)) return;
-    if (TryFlowSide(x, y, -dir, flowRange, world, ref p)) return;
 
     // 5. IF NO MOVEMENT POSSIBLE
     p.SettleCount++; // Get closer to sleep
@@ -160,23 +154,45 @@ public static class PhysicsHandler
 
   private static bool TryFlowSide(int startX, int startY, int direction, int maxRange, World world, ref Particle p)
   {
-    
-    int dirStep;
-    int negativeDirStep;
+    int leftAirScore = maxRange;
+    int rightAirScore = maxRange;
 
-    for (int i = 0; i <= maxRange, i++)
+    // scan right for pit
+    for (int i = 1; i <= maxRange; i++)
     {
-      if (world.CanMove(startX + i * dir, startY) && world.CanMove(startX + i, startY - 1))
+      int checkX = startX + i;
+      if (!world.CanMoveLiquid(checkX, startY)) break;
+      if (world.CanMove(checkX, startY - 1))
       {
-        dirStep++;
+        rightAirScore = i;
+        break;
       }
-          if (world.CanMove(startX + i * -dir, startY) && world.CanMove(startX + i, startY - 1))
-      {
-        negativeDirStep++;
-      }
-      if (dirStep > maxRange / 2)
-      if (negativeDirStep > maxRange / 2)
     }
 
+    // Scan Left
+    for (int i = 1; i <= maxRange; i++)
+    {
+      int checkX = startX - i;
+      if (!world.CanMoveLiquid(checkX, startY)) break;
+      if (world.CanMove(checkX, startY - 1))
+      {
+        leftAirScore = i;
+        break;
+      }
+    }
+
+    int finalDir;
+    if (rightAirScore < leftAirScore) finalDir = 1;
+    else if (leftAirScore < rightAirScore) finalDir = -1;
+    else finalDir = direction;
+    
+    if (finalDir != 0 && world.CanMove(startX + finalDir, startY))
+    {
+      world.MoveParticle(startX, startY, startX + finalDir, startY, p);
+      p.SettleCount = 0;
+      return true;
+    }
+
+    return false;
   }
 }

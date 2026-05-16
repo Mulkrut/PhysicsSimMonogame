@@ -52,6 +52,13 @@ public void Update()
            _grid[x, y].Type == ParticleType.Air &&
            _nextGrid[x, y].Type == ParticleType.Air;
   }
+
+  public bool CanMoveLiquid(int x, int y)
+  {
+    return IsInBounds(x, y) &&
+           (_grid[x, y].Type == ParticleType.Air || _grid[x, y].Type == ParticleType.Water) &&
+           (_nextGrid[x, y].Type == ParticleType.Air || _nextGrid[x, y].Type == ParticleType.Water);
+  }
   public void MoveParticle(int x1, int y1, int x2, int y2, Particle p)
   {
     _nextGrid[x1, y1] = Particle.Empty;
