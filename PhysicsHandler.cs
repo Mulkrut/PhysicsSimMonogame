@@ -5,6 +5,7 @@ namespace Physics_Sim;
 public static class PhysicsHandler
 {
   private static readonly Random _rng = new Random();
+
   public static void UpdateParticle(int x, int y, World world)
   {
     Particle p = world.GetParticle(x, y);
@@ -91,7 +92,7 @@ public static class PhysicsHandler
   {
 
     // 1. SLEEP CHECK: If already settled, don't even look at it
-    if (p.SettleCount >= 15 && !world.CanMove(x, y + 1))
+    if (!world.CanMove(x, y + 1) && !world.CanMove(x + 1, y + 1) && !world.CanMove(x - 1, y + 1))
     {
       world.SetNextGrid(x, y, p); // Keep it where it is
       return;
@@ -131,7 +132,8 @@ public static class PhysicsHandler
     }
 
     // 4. HORIZONTAL SLIDING (water mode)
-    int flowRange = 5;
+
+
     for (int i = 1; i <= flowRange; i++)
     {
       if (world.CanMove(x + (dir * i), y))
@@ -146,10 +148,35 @@ public static class PhysicsHandler
       }
     }
 
+    if (TryFlowSide(x, y, dir, flowRange, world, ref p)) return;
+    if (TryFlowSide(x, y, -dir, flowRange, world, ref p)) return;
+
     // 5. IF NO MOVEMENT POSSIBLE
     p.SettleCount++; // Get closer to sleep
     p.VelocityY = 0;
     p.IsFalling = false;
     world.SetNextGrid(x, y, p);
+  }
+
+  private static bool TryFlowSide(int startX, int startY, int direction, int maxRange, World world, ref Particle p)
+  {
+    
+    int dirStep;
+    int negativeDirStep;
+
+    for (int i = 0; i <= maxRange, i++)
+    {
+      if (world.CanMove(startX + i * dir, startY) && world.CanMove(startX + i, startY - 1))
+      {
+        dirStep++;
+      }
+          if (world.CanMove(startX + i * -dir, startY) && world.CanMove(startX + i, startY - 1))
+      {
+        negativeDirStep++;
+      }
+      if (dirStep > maxRange / 2)
+      if (negativeDirStep > maxRange / 2)
+    }
+
   }
 }
