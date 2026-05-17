@@ -100,11 +100,17 @@ public static class PhysicsHandler
 
   private static void HandleWaterMovement(int x, int y, World world, ref Particle p)
   {
+    int dir = _rng.Next(2) == 0 ? -1 : 1;
+    int flowRange = p.FlowRange;
 
     // 1. SLEEP CHECK: If already settled, don't even look at it
-    if (p.SettleCount >= 100 && !world.CanMove(x, y + 1) && !world.CanMove(x + 1, y + 1) && !world.CanMove(x - 1, y + 1))
+    if (p.SettleCount >= 30 && !world.CanMove(x, y + 1) && !world.CanMove(x + 1, y + 1) && !world.CanMove(x - 1, y + 1))
     {
-      world.SetNextGrid(x, y, p); // Keep it where it is
+      if (world.CanMove(x + 1, y) || world.CanMove(x - 1, y))
+      {
+        if (TryFlowSide(x, y, dir, 50, world, ref p)) return;
+      }
+      else world.SetNextGrid(x, y, p); // Keep it where it is
       return;
     }
 
@@ -137,7 +143,6 @@ public static class PhysicsHandler
     }
 
     // 3. SLOPES (Diagonals)
-    int dir = _rng.Next(2) == 0 ? -1 : 1;
     if (world.CanMove(x + dir, y + 1))
     {
       p.SettleCount = 0; // Diagonals count as movement
@@ -151,16 +156,17 @@ public static class PhysicsHandler
       return;
     }
 
-    int flowRange = 20;    
-
     if (TryFlowSide(x, y, dir, flowRange, world, ref p)) return;
 
-    //Random movement but sets sleep
+    //Random movement but increases sleep
     if (world.CanMove(x + dir, y)) {
       world.MoveParticle(x, y, x + dir, y, p);
       p.SettleCount++;
       return;
     }
+
+    if (p.SettleCount < 3) p.VelocityX = 1;
+    else p.VelocityX = 0;
 
     // 5. IF NO MOVEMENT POSSIBLE
     p.SettleCount++; // Get closer to sleep

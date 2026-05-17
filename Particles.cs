@@ -12,20 +12,28 @@ public struct Particle
   public ParticleType Type;
   public bool IsFalling;
   public float VelocityY;
+  public float VelocityX;
   public Color Color;
   public int SettleCount;
   public int Friction;
   public float Density; //0-1
+  public int FlowRange;
+  public int Depth; //0-15, light -> dark
+  public int VisualOffset;
 
   public static Particle Empty => new Particle
   {
     Type = ParticleType.Air,
     IsFalling = false,
     VelocityY = 0,
+    VelocityX = 0,
     Color = Color.Transparent,
     SettleCount = 0,
     Friction = 0,
-    Density = 0,
+    Density = 0f,
+    FlowRange = 0,
+    Depth = 0,
+    VisualOffset = 0
   };
 
   public static readonly Color[] SandPalette = new Color[]
@@ -43,7 +51,8 @@ public struct Particle
     new Color(35,137,218), 
     new Color(28,163,236),
     new Color(90,188,216),
-    new Color(116,204,244)
+    new Color(116,204,244),  //lightest blue
+    new Color(240,255,255) // basicly white
 };
 }
 

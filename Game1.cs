@@ -15,9 +15,9 @@ public class Game1 : Game
   private Texture2D _gridTexture;
   private Color[] _colorBuffer;
   
-  private const int GridWidth = 200;
-  private const int GridHeight = 150;
-  private const int Scale = 6; // Scale up the pixels for visibility
+  private const int GridWidth = 160;
+  private const int GridHeight = 100;
+  private const int Scale = 8; // Scale up the pixels for visibility
 
     public Game1()
   {

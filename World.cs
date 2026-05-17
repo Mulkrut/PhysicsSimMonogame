@@ -35,6 +35,7 @@ public void Update()
         Particle p = _grid[x, y];
         if (p.Type == ParticleType.Sand || p.Type == ParticleType.Water)
         {
+          if (p.Type == ParticleType.Water) ParticleRender.DepthCalculate(x, y, this);
           PhysicsHandler.UpdateParticle(x, y, this);
         }
       }
@@ -110,6 +111,8 @@ public void Update()
         Type = ParticleType.Sand,
         IsFalling = true,
         Density = 0.6f,
+        FlowRange = 3,
+        Depth = 0,
         Color = Particle.SandPalette[new Random().Next(Particle.SandPalette.Length)]
       };
     }
@@ -120,10 +123,26 @@ public void Update()
         Type = ParticleType.Water,
         IsFalling = true,
         Density = 0.2f,
-        Color = Particle.waterPalette[new Random().Next(Particle.waterPalette.Length)]
+        FlowRange = 20,
+        Depth = 0,
+        Color = Particle.waterPalette[0],
+        VisualOffset = _rng.Next(-1, 2)
+        //Color = Particle.waterPalette[new Random().Next(Particle.waterPalette.Length)]
       };
     }
   }
+
+  //Visualiser helper Methods
+
+  public void UpdateWaterVisuals(int x, int y, int depth, Color color)
+  {
+    if (IsInBounds(x, y))
+    {
+        _grid[x, y].Depth = depth;
+        _grid[x, y].Color = color;
+    }
+  }
+
 
   public Particle[,] GetGrid() => _grid;
 }
