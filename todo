@@ -2,6 +2,8 @@ Refactor:
   Entire Physics handler
   Split up world into different parts (logic and helper methods)
 
+  Seperate the depth visualiser away from main into the draw.
+
 
 Physics:
   Smoothe the water

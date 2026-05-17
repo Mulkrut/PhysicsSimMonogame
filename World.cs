@@ -133,8 +133,8 @@ public class World
   {
     if (IsInBounds(x, y))
     {
-        _grid[x, y].Depth = depth;
-        _grid[x, y].Color = color;
+        _nextGrid[x, y].Depth = depth;
+        _nextGrid[x, y].Color = color;
     }
   }
 
