@@ -10,6 +10,7 @@ public class World
   public readonly int Width;
   public readonly int Height;
   private readonly Random _rng = new Random();
+  public int frameCount = 0;
 
   private Particle[,] _grid;
   private Particle[,] _nextGrid;
@@ -22,28 +23,47 @@ public class World
     _nextGrid = new Particle[width, height];
   }
 
-public void Update()
+  public void Update()
   {
-  // Copy current state to nextGrid buffer
-  Array.Copy(_grid, _nextGrid, _grid.Length);
+    // Copy current state to nextGrid buffer
+    Array.Copy(_grid, _nextGrid, _grid.Length);
+    bool reverse = frameCount % 2 == 0;
 
-  // Iterate bottom-to-top to prevent "teleporting" sand
-  for (int y = Height - 1; y >= 0; y--)
-  {
-    for (int x = 0; x < Width; x++)
+    // Iterate bottom-to-top to prevent "teleporting" sand
+    for (int y = Height - 1; y >= 0; y--)
     {
-        Particle p = _grid[x, y];
-        if (p.Type == ParticleType.Sand || p.Type == ParticleType.Water)
+      if (reverse) 
+      {
+        for (int x = 0; x < Width; x++)
         {
-          if (p.Type == ParticleType.Water) ParticleRender.DepthCalculate(x, y, this);
-          PhysicsHandler.UpdateParticle(x, y, this);
+          MainLoop(x, y);
         }
       }
+      else
+      {
+        for (int x = Width - 1; x >= 0; x--)
+        {
+          MainLoop(x, y);
+        }
+      }
+    }
+
+    frameCount++;
+    // Apply all changes to the main grid
+    Array.Copy(_nextGrid, _grid, _nextGrid.Length);
   }
 
-  // Apply all changes to the main grid
-  Array.Copy(_nextGrid, _grid, _nextGrid.Length);
+  public void MainLoop(int x, int y)
+  {
+    Particle p = _grid[x, y];
+    if (p.Type == ParticleType.Sand || p.Type == ParticleType.Water)
+    {
+      if (p.Type == ParticleType.Water) ParticleRender.DepthCalculate(x, y, this);
+      PhysicsHandler.UpdateParticle(x, y, this);
+    }
   }
+
+  
 
   // --- Helper Methods for PhysicsHandler ---
 

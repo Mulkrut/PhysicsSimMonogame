@@ -18,6 +18,7 @@ public static class ParticleRender
           {
               depth = aboveP.Depth + 1;
           }
+          else if (aboveP.Type == ParticleType.Stone) depth = 8;
       }
 
       Particle p = world.GetParticle(x, y);
@@ -33,7 +34,7 @@ public static class ParticleRender
       else if (variableDepth < 12) finalIndex = 1; // Depth 9, 10, 11 -> Medium Dark Blue
       else finalIndex = 0; // Depth 12+       -> Darkest Blue
 
-      if (p.VelocityY > 3 || p.VelocityX == 1 && depth < 3) finalIndex = 5;
+      if (p.VelocityY > 2 || (p.VelocityX == 1 && depth < 3)) finalIndex = 5;
       
       // Old variaton flickered too much
       // int variation = _rng.Next(2) == 0 ? 0 : 1;

@@ -1,6 +1,5 @@
 Refactor:
   Entire Physics handler
-  Default Particle data
   Split up world into different parts (logic and helper methods)
 
 
@@ -9,13 +8,17 @@ Physics:
   More interesting VelocityX
     Splash back and up?
 
+  Make air rise up quicker if surrounded by water
+
+  Alternate or randomize order it scans left to right
+
   Chunk system for optimization
   Water optimization for amount of checks
     Active / not active in the update loop
 
 
 Materials:
-  Stone
+  Infinite water source
   Fire
   Explosion
   Another liquid

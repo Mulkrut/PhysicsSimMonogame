@@ -63,16 +63,16 @@ public static class PhysicsHandler
 
     //SLOPES
     int dir = _rng.Next(2) == 0 ? -1 : 1;
-    if (world.CanMoveDensity(x + dir, y + 1, p))
+    if (world.CanMove(x + dir, y + 1) && (world.CanMove(x + dir, y)))
     {
       p.SettleCount = 0; // Diagonals count as movement
-      world.SwapParticle(x, y, x + dir, y + 1, p);
+      world.MoveParticle(x, y, x + dir, y + 1, p);
       return;
     }
-    else if (world.CanMoveDensity(x - dir, y + 1, p))
+    else if (world.CanMove(x - dir, y + 1) && (world.CanMove(x - dir, y)))
     {
       p.SettleCount = 0;
-      world.SwapParticle(x, y, x - dir, y + 1, p);
+      world.MoveParticle(x, y, x - dir, y + 1, p);
       return;
     }
 
@@ -106,7 +106,25 @@ public static class PhysicsHandler
     int dir = _rng.Next(2) == 0 ? -1 : 1;
     int flowRange = p.FlowRange;
 
-    // 1. SLEEP CHECK: If already settled, don't even look at it
+
+    //Optimizing, puts to sleep if surrounded
+    if (p.VelocityY == 0 && p.VelocityX == 0 && !p.IsFalling &&
+        !world.CanMove(x, y + 1) && // Down
+        !world.CanMove(x - 1, y) && // Left
+        !world.CanMove(x + 1, y) && // Right
+        !world.CanMove(x + 1, y + 1) && // diag left
+        !world.CanMove(x - 1, y + 1) && // Diag right
+        !world.CanMove(x, y - 1))   // Up
+    {
+        p.SettleCount = 30; // Force maximum sleep state
+        p.VelocityY = 0;
+        p.VelocityX = 0;
+        p.IsFalling = false;
+        world.SetNextGrid(x, y, p); // Lock it in place
+        return; // Exit completely!
+    }
+
+    //1. SLEEP CHECK: If already settled, don't even look at it
     // if (p.SettleCount >= 30 && !world.CanMove(x, y + 1) && !world.CanMove(x + 1, y + 1) && !world.CanMove(x - 1, y + 1))
     // {
     //   if (world.CanMove(x + 1, y) || world.CanMove(x - 1, y))
@@ -146,13 +164,13 @@ public static class PhysicsHandler
     }
 
     // 3. SLOPES (Diagonals)
-    if (world.CanMove(x + dir, y + 1))
+    if (world.CanMove(x + dir, y + 1) && (world.CanMoveLiquid(x + dir, y)))
     {
       p.SettleCount = 0; // Diagonals count as movement
       world.MoveParticle(x, y, x + dir, y + 1, p);
       return;
     }
-    else if (world.CanMove(x - dir, y + 1))
+    else if (world.CanMove(x - dir, y + 1) && (world.CanMoveLiquid(x - dir, y)))
     {
       p.SettleCount = 0;
       world.MoveParticle(x, y, x - dir, y + 1, p);
@@ -161,15 +179,14 @@ public static class PhysicsHandler
 
     if (TryFlowSide(x, y, dir, flowRange, world, ref p)) return;
 
-    //Random movement but increases sleep
+    //Random movement
     if (world.CanMove(x + dir, y)) {
       world.MoveParticle(x, y, x + dir, y, p);
-      p.SettleCount++;
       return;
     }
 
-    // if (p.SettleCount < 3) p.VelocityX = 1;
-    // else p.VelocityX = 0;
+    if (p.SettleCount < 3) p.VelocityX = 1;
+    else p.VelocityX = 0;
 
     // 5. IF NO MOVEMENT POSSIBLE
     p.SettleCount++; // Get closer to sleep
@@ -178,6 +195,7 @@ public static class PhysicsHandler
     p.IsFalling = false;
     world.SetNextGrid(x, y, p);
   }
+
 
   private static bool TryFlowSide(int startX, int startY, int direction, int maxRange, World world, ref Particle p)
   {

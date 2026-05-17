@@ -15,9 +15,9 @@ public class Game1 : Game
   private Texture2D _gridTexture;
   private Color[] _colorBuffer;
   
-  private const int GridWidth = 160;
-  private const int GridHeight = 100;
-  private const int Scale = 6; // Scale up the pixels for visibility
+  private const int GridWidth = 200;
+  private const int GridHeight = 150;
+  private const int Scale = 4; // Scale up the pixels for visibility
 
     public Game1()
   {
@@ -63,6 +63,7 @@ public class Game1 : Game
     if (kbState.IsKeyDown(Keys.Q)) _brush.SelectedType = ParticleType.Sand;
     if (kbState.IsKeyDown(Keys.W)) _brush.SelectedType = ParticleType.Water;
     if (kbState.IsKeyDown(Keys.E)) _brush.SelectedType = ParticleType.Air;
+    if (kbState.IsKeyDown(Keys.S)) _brush.SelectedType = ParticleType.Stone;
 
     //Shortcuts
     //Reset

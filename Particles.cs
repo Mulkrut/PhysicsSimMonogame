@@ -5,7 +5,7 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Physics_Sim;
-public enum ParticleType { Air, Sand, Water }
+public enum ParticleType { Air, Sand, Stone, Water }
 
 public struct Particle
 {
@@ -47,6 +47,15 @@ public struct Particle
     new Color(194, 178, 128)  // Ecru/Dark Sand
   };
 
+  public static readonly Color[] stonePalette = new Color[]
+  {
+    new Color(144,152,163), // just random greys
+    new Color(156,156,156), 
+    new Color(152,160,167),
+    new Color(140,141,141),
+    new Color(142,148,148),
+  };
+
   public static readonly Color[] waterPalette = new Color[]
   {
     new Color(15,94,156), // Goes dark to light
@@ -78,6 +87,22 @@ public struct Particle
             Depth = 0,
             VisualOffset = 0,
             Color = SandPalette[_rng.Next(SandPalette.Length)] // Assigns random textured sand grain on spawn
+        };
+
+      case ParticleType.Stone:
+        return new Particle
+        {
+            Type = ParticleType.Stone,
+            IsFalling = false,
+            VelocityY = 0f,
+            VelocityX = 0f,
+            SettleCount = 0,
+            Friction = 10,
+            Density = 1f,
+            FlowRange = 0,
+            Depth = 12,
+            VisualOffset = 0,
+            Color = stonePalette[_rng.Next(stonePalette.Length)]
         };
 
       case ParticleType.Water:
