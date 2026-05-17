@@ -15,6 +15,7 @@ public struct Particle
   public Color Color;
   public int SettleCount;
   public int Friction;
+  public float Density; //0-1
 
   public static Particle Empty => new Particle
   {
@@ -23,7 +24,8 @@ public struct Particle
     VelocityY = 0,
     Color = Color.Transparent,
     SettleCount = 0,
-    Friction = 0
+    Friction = 0,
+    Density = 0,
   };
 
   public static readonly Color[] SandPalette = new Color[]

@@ -53,6 +53,15 @@ public void Update()
            _nextGrid[x, y].Type == ParticleType.Air;
   }
 
+
+  public bool CanMoveDensity(int x, int y, Particle p)
+  {
+    if (!IsInBounds(x, y)) return false;
+    if (GetParticle(x, y).Density == p.Density) return false;
+    else return _grid[x, y].Density < p.Density && _nextGrid[x, y].Density < p.Density;
+  }
+
+  //checks if target is valid (air or water)
   public bool CanMoveLiquid(int x, int y)
   {
     return IsInBounds(x, y) &&
@@ -70,6 +79,17 @@ public void Update()
       _nextGrid[x1, y1 - 1].SettleCount = 0;
     }
   }
+
+  public void SwapParticle(int x1, int y1, int x2, int y2, Particle p)
+  {
+    Particle temp = GetParticle(x2, y2);
+    _nextGrid[x1, y1] = temp;
+    _nextGrid[x2, y2] = p;
+
+    _nextGrid[x1, y1].SettleCount = 0;
+    _nextGrid[x2, y2].SettleCount = 0;
+  }
+
 
   public void SetNextGrid(int x, int y, Particle p) => _nextGrid[x, y] = p;
 
@@ -89,6 +109,7 @@ public void Update()
       {
         Type = ParticleType.Sand,
         IsFalling = true,
+        Density = 0.6f,
         Color = Particle.SandPalette[new Random().Next(Particle.SandPalette.Length)]
       };
     }
@@ -98,6 +119,7 @@ public void Update()
       {
         Type = ParticleType.Water,
         IsFalling = true,
+        Density = 0.2f,
         Color = Particle.waterPalette[new Random().Next(Particle.waterPalette.Length)]
       };
     }
