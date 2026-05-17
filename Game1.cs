@@ -17,7 +17,7 @@ public class Game1 : Game
   
   private const int GridWidth = 160;
   private const int GridHeight = 100;
-  private const int Scale = 8; // Scale up the pixels for visibility
+  private const int Scale = 6; // Scale up the pixels for visibility
 
     public Game1()
   {
@@ -62,6 +62,7 @@ public class Game1 : Game
     // Changing brush type
     if (kbState.IsKeyDown(Keys.Q)) _brush.SelectedType = ParticleType.Sand;
     if (kbState.IsKeyDown(Keys.W)) _brush.SelectedType = ParticleType.Water;
+    if (kbState.IsKeyDown(Keys.E)) _brush.SelectedType = ParticleType.Air;
 
     //Shortcuts
     //Reset

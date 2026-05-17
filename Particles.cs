@@ -21,6 +21,8 @@ public struct Particle
   public int Depth; //0-15, light -> dark
   public int VisualOffset;
 
+  private static readonly Random _rng = new Random();
+
   public static Particle Empty => new Particle
   {
     Type = ParticleType.Air,
@@ -46,14 +48,57 @@ public struct Particle
   };
 
   public static readonly Color[] waterPalette = new Color[]
-{
+  {
     new Color(15,94,156), // Goes dark to light
     new Color(35,137,218), 
     new Color(28,163,236),
     new Color(90,188,216),
     new Color(116,204,244),  //lightest blue
     new Color(240,255,255) // basicly white
-};
+  };
+
+  public static Particle Create(ParticleType type)
+  {
+    switch (type)
+    {
+      case ParticleType.Air:
+        return Empty;
+
+      case ParticleType.Sand:
+        return new Particle
+        {
+            Type = ParticleType.Sand,
+            IsFalling = true,
+            VelocityY = 0f,
+            VelocityX = 0f,
+            SettleCount = 0,
+            Friction = 5, // Default friction value for sand grains
+            Density = 0.6f,
+            FlowRange = 3,
+            Depth = 0,
+            VisualOffset = 0,
+            Color = SandPalette[_rng.Next(SandPalette.Length)] // Assigns random textured sand grain on spawn
+        };
+
+      case ParticleType.Water:
+        return new Particle
+        {
+            Type = ParticleType.Water,
+            IsFalling = true,
+            VelocityY = 0f,
+            VelocityX = 0f,
+            SettleCount = 0,
+            Friction = 0, // Water has no internal friction properties
+            Density = 0.2f,
+            FlowRange = 40,
+            Depth = 0,
+            VisualOffset = _rng.Next(-1, 2), // Gives a persistent texture offset so it doesn't flicker
+            Color = waterPalette[0] // Starts dark, let DepthCalculate handle the coloring dynamically
+        };
+      default:
+        return Empty; // Fallback security
+    }
+}
 }
 
 

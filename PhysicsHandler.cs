@@ -90,6 +90,9 @@ public static class PhysicsHandler
       return;
     }
 
+    if (p.SettleCount < 3) p.VelocityX = 1;
+    else p.VelocityX = 0;
+
     // 5. IF NO MOVEMENT POSSIBLE
     p.SettleCount++; // Get closer to sleep
     p.VelocityY = 0;
@@ -104,15 +107,15 @@ public static class PhysicsHandler
     int flowRange = p.FlowRange;
 
     // 1. SLEEP CHECK: If already settled, don't even look at it
-    if (p.SettleCount >= 30 && !world.CanMove(x, y + 1) && !world.CanMove(x + 1, y + 1) && !world.CanMove(x - 1, y + 1))
-    {
-      if (world.CanMove(x + 1, y) || world.CanMove(x - 1, y))
-      {
-        if (TryFlowSide(x, y, dir, 50, world, ref p)) return;
-      }
-      else world.SetNextGrid(x, y, p); // Keep it where it is
-      return;
-    }
+    // if (p.SettleCount >= 30 && !world.CanMove(x, y + 1) && !world.CanMove(x + 1, y + 1) && !world.CanMove(x - 1, y + 1))
+    // {
+    //   if (world.CanMove(x + 1, y) || world.CanMove(x - 1, y))
+    //   {
+    //     if (TryFlowSide(x, y, dir, flowRange, world, ref p)) return;
+    //   }
+    //   else world.SetNextGrid(x, y, p); // Keep it where it is
+    //   return;
+    // }
 
     // 2. GRAVITY & VERTICAL FALL
     if (world.CanMove(x, y + 1))
@@ -165,12 +168,13 @@ public static class PhysicsHandler
       return;
     }
 
-    if (p.SettleCount < 3) p.VelocityX = 1;
-    else p.VelocityX = 0;
+    // if (p.SettleCount < 3) p.VelocityX = 1;
+    // else p.VelocityX = 0;
 
     // 5. IF NO MOVEMENT POSSIBLE
     p.SettleCount++; // Get closer to sleep
     p.VelocityY = 0;
+    p.VelocityX = 0;
     p.IsFalling = false;
     world.SetNextGrid(x, y, p);
   }
@@ -198,6 +202,7 @@ public static class PhysicsHandler
       int checkX = startX - i;
       if (!world.CanMoveLiquid(checkX, startY)) break;
       if (world.CanMove(checkX, startY + 1))
+
       {
         leftAirScore = i;
         break;

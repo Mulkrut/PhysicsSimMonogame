@@ -1,0 +1,23 @@
+Refactor:
+  Entire Physics handler
+  Default Particle data
+  Split up world into different parts (logic and helper methods)
+
+
+Physics:
+  Smoothe the water
+  More interesting VelocityX
+    Splash back and up?
+
+  Chunk system for optimization
+  Water optimization for amount of checks
+    Active / not active in the update loop
+
+
+Materials:
+  Stone
+  Fire
+  Explosion
+  Another liquid
+
+

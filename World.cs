@@ -102,33 +102,8 @@ public void Update()
   public void SetCell(int x, int y, ParticleType type)
   {
     if (!IsInBounds(x, y)) return;
-
-    if (type == ParticleType.Air) _grid[x, y] = Particle.Empty;
-    else if (type == ParticleType.Sand)
     {
-      _grid[x, y] = new Particle
-      {
-        Type = ParticleType.Sand,
-        IsFalling = true,
-        Density = 0.6f,
-        FlowRange = 3,
-        Depth = 0,
-        Color = Particle.SandPalette[new Random().Next(Particle.SandPalette.Length)]
-      };
-    }
-    else if (type == ParticleType.Water)
-    {
-      _grid[x, y] = new Particle
-      {
-        Type = ParticleType.Water,
-        IsFalling = true,
-        Density = 0.2f,
-        FlowRange = 20,
-        Depth = 0,
-        Color = Particle.waterPalette[0],
-        VisualOffset = _rng.Next(-1, 2)
-        //Color = Particle.waterPalette[new Random().Next(Particle.waterPalette.Length)]
-      };
+      _grid[x, y] = Particle.Create(type);
     }
   }
 
