@@ -56,7 +56,7 @@ public class World
   public void MainLoop(int x, int y)
   {
     Particle p = _grid[x, y];
-    if (p.Type == ParticleType.Sand || p.Type == ParticleType.Water)
+    if (p.Type == ParticleType.Sand || p.Type == ParticleType.Water || p.Type == ParticleType.Air)
     {
       if (p.Type == ParticleType.Water) ParticleRender.DepthCalculate(x, y, this);
       PhysicsHandler.UpdateParticle(x, y, this);
@@ -104,6 +104,7 @@ public class World
   public void SwapParticle(int x1, int y1, int x2, int y2, Particle p)
   {
     Particle temp = GetParticle(x2, y2);
+    
     _nextGrid[x1, y1] = temp;
     _nextGrid[x2, y2] = p;
 
@@ -115,6 +116,17 @@ public class World
   public void SetNextGrid(int x, int y, Particle p) => _nextGrid[x, y] = p;
 
   public Particle GetParticle(int x, int y) => _grid[x, y];
+
+
+  public ParticleType GetParticleType(int x, int y)
+  {
+    if (IsInBounds(x, y)) {
+      Particle p = GetParticle(x, y);
+      return p.Type;
+    }
+  else return ParticleType.Air;
+  }
+
 
   public bool IsInBounds(int x, int y) =>
       x >= 0 && x < Width && y >= 0 && y < Height;
@@ -133,8 +145,8 @@ public class World
   {
     if (IsInBounds(x, y))
     {
-        _nextGrid[x, y].Depth = depth;
-        _nextGrid[x, y].Color = color;
+        _grid[x, y].Depth = depth;
+        _grid[x, y].Color = color;
     }
   }
 

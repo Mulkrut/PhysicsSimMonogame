@@ -139,7 +139,7 @@ public static class PhysicsHandler
     if (world.CanMove(x, y + 1))
     {
       p.IsFalling = true;
-      if (p.VelocityY < 10) p.VelocityY += 0.2f;
+      if (p.VelocityY < 10) p.VelocityY += 0.4f;
 
       int steps = (int)Math.Max(1, p.VelocityY);
       for (int d = steps; d > 0; d--)
@@ -170,7 +170,7 @@ public static class PhysicsHandler
       world.MoveParticle(x, y, x + dir, y + 1, p);
       return;
     }
-    else if (world.CanMove(x - dir, y + 1) && (world.CanMoveLiquid(x - dir, y)))
+    else if (world.CanMove(x - dir, y + 1) && world.CanMoveLiquid(x - dir, y))
     {
       p.SettleCount = 0;
       world.MoveParticle(x, y, x - dir, y + 1, p);
@@ -185,7 +185,7 @@ public static class PhysicsHandler
       return;
     }
 
-    if (p.SettleCount < 3) p.VelocityX = 1;
+    if (p.SettleCount < 5) p.VelocityX = 1;
     else p.VelocityX = 0;
 
     // 5. IF NO MOVEMENT POSSIBLE
