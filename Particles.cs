@@ -5,7 +5,7 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Physics_Sim;
-public enum ParticleType { Air, Sand, Stone, Water }
+public enum ParticleType { Air, Sand, Stone, Water, Wood, Fire, Smoke }
 
 public struct Particle
 {
@@ -14,12 +14,13 @@ public struct Particle
   public float VelocityY;
   public float VelocityX;
   public Color Color;
-  public int SettleCount;
-  public int Friction;
+  public byte SettleCount;
+  public byte Friction;
   public float Density; //0-1
-  public int FlowRange;
-  public int Depth; //0-15, light -> dark
+  public byte FlowRange;
+  public byte Depth; //0-15, light -> dark
   public int VisualOffset;
+  public int Lifespan;
 
   private static readonly Random _rng = new Random();
 
@@ -35,7 +36,8 @@ public struct Particle
     Density = 0f,
     FlowRange = 0,
     Depth = 0,
-    VisualOffset = 0
+    VisualOffset = 0,
+    Lifespan = 0
   };
 
   public static readonly Color[] SandPalette = new Color[]
@@ -66,6 +68,30 @@ public struct Particle
     new Color(240,255,255) // basicly white
   };
 
+  public static readonly Color[] firePalette = new Color[]
+  {
+    new Color(237,31,10), // Goes red to yellow
+    new Color(248,66,11), 
+    new Color(249,85,4),
+    new Color(247,111,11),
+    new Color(255,144,10),
+    new Color(255,193,0)
+  };
+
+  public static readonly Color[] woodPalette = new Color[]
+  {
+    new Color(136,99,66),
+    new Color(135,103,79), 
+    new Color(136,108,80)
+  };
+
+  public static readonly Color[] smokePalette = new Color[]
+  {
+    new Color(55,54,54), //dark to light
+    new Color(111,111,111), 
+    new Color(150,146,146)
+  };
+
   public static Particle Create(ParticleType type)
   {
     switch (type)
@@ -86,6 +112,7 @@ public struct Particle
             FlowRange = 3,
             Depth = 0,
             VisualOffset = 0,
+            Lifespan = 0,
             Color = SandPalette[_rng.Next(SandPalette.Length)] // Assigns random textured sand grain on spawn
         };
 
@@ -102,6 +129,7 @@ public struct Particle
             FlowRange = 0,
             Depth = 12,
             VisualOffset = 0,
+            Lifespan = 0,
             Color = stonePalette[_rng.Next(stonePalette.Length)]
         };
 
@@ -115,15 +143,68 @@ public struct Particle
             SettleCount = 0,
             Friction = 0, // Water has no internal friction properties
             Density = 0.2f,
-            FlowRange = 40,
+            FlowRange = 30,
             Depth = 0,
+            Lifespan = 0,
             VisualOffset = _rng.Next(-1, 2), // Gives a persistent texture offset so it doesn't flicker
             Color = waterPalette[0] // Starts dark, let DepthCalculate handle the coloring dynamically
         };
+
+      case ParticleType.Wood:
+        return new Particle
+        {
+            Type = ParticleType.Wood,
+            IsFalling = false,
+            VelocityY = 0f,
+            VelocityX = 0f,
+            SettleCount = 0,
+            Friction = 3,
+            Density = 1f,
+            FlowRange = 0,
+            Depth = 0,
+            VisualOffset = 0,
+            Lifespan = 0,
+            Color = woodPalette[_rng.Next(woodPalette.Length)]
+        };
+      
+      case ParticleType.Fire:
+        return new Particle
+        {
+            Type = ParticleType.Fire,
+            IsFalling = false,
+            VelocityY = 0f,
+            VelocityX = 0f,
+            SettleCount = 0,
+            Friction = 0,
+            Density = -0.5f,
+            FlowRange = 0,
+            Depth = 12,
+            VisualOffset = _rng.Next(-1, 2),
+            Lifespan = _rng.Next(10, 30), //random start lifespan
+            Color = firePalette[0]
+        };
+
+      case ParticleType.Smoke:
+        return new Particle
+        {
+            Type = ParticleType.Smoke,
+            IsFalling = false,
+            VelocityY = 0f,
+            VelocityX = 0f,
+            SettleCount = 0,
+            Friction = 0,
+            Density = -1f,
+            FlowRange = 0,
+            Depth = 0,
+            VisualOffset = 0,
+            Lifespan = _rng.Next(10, 30), //random start lifespan
+            Color = smokePalette[_rng.Next(smokePalette.Length)]
+        };
+      
       default:
         return Empty; // Fallback security
     }
-}
+  } 
 }
 
 

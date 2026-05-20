@@ -8,6 +8,7 @@ public class Game1 : Game
 {
   private GraphicsDeviceManager _graphics;
   private SpriteBatch _spriteBatch;
+  private UserInput _userInput = new UserInput();
 
   // Simulation Settings
   private World _world;
@@ -51,40 +52,7 @@ public class Game1 : Game
     if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
       Exit();
 
-    var mouseState = Mouse.GetState();
-    var kbState = Keyboard.GetState();
-
-
-    //Adjusting Brush size
-    if (kbState.IsKeyDown(Keys.Up)) _brush.Size++;
-    if (kbState.IsKeyDown(Keys.Down) && _brush.Size > 0) _brush.Size--;
-
-    // Changing brush type
-    if (kbState.IsKeyDown(Keys.Q)) _brush.SelectedType = ParticleType.Sand;
-    if (kbState.IsKeyDown(Keys.W)) _brush.SelectedType = ParticleType.Water;
-    if (kbState.IsKeyDown(Keys.E)) _brush.SelectedType = ParticleType.Air;
-    if (kbState.IsKeyDown(Keys.S)) _brush.SelectedType = ParticleType.Stone;
-
-    //Shortcuts
-    //Reset
-    if (kbState.IsKeyDown(Keys.R))
-    {
-      for (int y = 0; y < GridHeight; y++)
-      {
-        for (int x = 0; x < GridWidth; x++)
-        {
-          _world.SetCell(x, y, ParticleType.Air);
-        }
-      }
-    }
-
-    if (mouseState.LeftButton == ButtonState.Pressed)
-    {
-      int gridX = mouseState.X / Scale;
-      int gridY = mouseState.Y / Scale;
-
-      _brush.Draw(gridX, gridY, _world);
-    }
+    _userInput.DetectInput(_world, _brush, Scale);
 
     _world.Update();
     base.Update(gameTime);

@@ -8,7 +8,7 @@ namespace Physics_Sim;
 public class Brush
 {
     public int Size = 5; // The radius of the sphere
-    public ParticleType SelectedType = ParticleType.Sand;
+    public ParticleType SelectedType = ParticleType.Wood;
 
     public void Draw(int mouseX, int mouseY, World world)
     {

@@ -50,15 +50,19 @@ public class World
 
     frameCount++;
     // Apply all changes to the main grid
-    Array.Copy(_nextGrid, _grid, _nextGrid.Length);
+    var temp = _grid;
+    _grid = _nextGrid;
+    _nextGrid = temp;
   }
 
   public void MainLoop(int x, int y)
   {
     Particle p = _grid[x, y];
-    if (p.Type == ParticleType.Sand || p.Type == ParticleType.Water || p.Type == ParticleType.Air)
+    if (p.Type == ParticleType.Air) return;
+    if (p.Type == ParticleType.Sand || p.Type == ParticleType.Water || p.Type == ParticleType.Fire || p.Type == ParticleType.Smoke)
     {
       if (p.Type == ParticleType.Water) ParticleRender.DepthCalculate(x, y, this);
+      else if (p.Type == ParticleType.Fire) ParticleRender.CrammedCalculate(x, y, this);
       PhysicsHandler.UpdateParticle(x, y, this);
     }
   }
@@ -89,16 +93,27 @@ public class World
            (_grid[x, y].Type == ParticleType.Air || _grid[x, y].Type == ParticleType.Water) &&
            (_nextGrid[x, y].Type == ParticleType.Air || _nextGrid[x, y].Type == ParticleType.Water);
   }
+
   public void MoveParticle(int x1, int y1, int x2, int y2, Particle p)
   {
     _nextGrid[x1, y1] = Particle.Empty;
     _nextGrid[x2, y2] = p;
 
     // Wake up the particle directly above the one that just moved
-    if (IsInBounds(x1, y1 - 1))
+    if (IsInBounds(x1, y1 - 1) && GetParticleType(x1, y1) != ParticleType.Fire)
     {
       _nextGrid[x1, y1 - 1].SettleCount = 0;
     }
+    if (IsInBounds(x2 + 1, y2) && GetParticleType(x1, y1) != ParticleType.Fire)
+      _nextGrid[x2 + 1, y2].SettleCount = 0;
+
+    if (IsInBounds(x2 - 1, y2) && GetParticleType(x1, y1) != ParticleType.Fire)
+      _nextGrid[x2 - 1, y2].SettleCount = 0;
+  }
+
+  public void DeleteParticle(int x, int y)
+  {
+    _nextGrid[x, y] = Particle.Empty;
   }
 
   public void SwapParticle(int x1, int y1, int x2, int y2, Particle p)
@@ -115,15 +130,21 @@ public class World
 
   public void SetNextGrid(int x, int y, Particle p) => _nextGrid[x, y] = p;
 
+
+  public void SetNewNextGrid(int x, int y, ParticleType type)
+  {
+    if (!IsInBounds(x, y)) return;
+    {
+      _nextGrid[x, y] = Particle.Create(type);
+    }
+  }
+
   public Particle GetParticle(int x, int y) => _grid[x, y];
 
 
   public ParticleType GetParticleType(int x, int y)
   {
-    if (IsInBounds(x, y)) {
-      Particle p = GetParticle(x, y);
-      return p.Type;
-    }
+    if (IsInBounds(x, y)) return _grid[x, y].Type;
   else return ParticleType.Air;
   }
 
@@ -141,7 +162,7 @@ public class World
 
   //Visualiser helper Methods
 
-  public void UpdateWaterVisuals(int x, int y, int depth, Color color)
+  public void UpdateWaterVisuals(int x, int y, byte depth, Color color)
   {
     if (IsInBounds(x, y))
     {
@@ -150,6 +171,12 @@ public class World
     }
   }
 
-
+  public void UpdateFireVisuals(int x, int y, Color color)
+  {
+    if (IsInBounds(x, y))
+    {
+        _grid[x, y].Color = color;
+    }
+  }
   public Particle[,] GetGrid() => _grid;
 }
