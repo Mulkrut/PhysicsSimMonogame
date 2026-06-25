@@ -9,7 +9,6 @@ public class World
 {
   public readonly int Width;
   public readonly int Height;
-  private readonly Random _rng = new Random();
   public int frameCount = 0;
 
   private Particle[,] _grid;
@@ -25,49 +24,57 @@ public class World
 
   public void Update()
   {
-    // Copy current state to nextGrid buffer
+    RunSimulationStep();
+    CommitNextGrid();
+    ParticleRender.UpdateVisuals(this);
+  }
+
+  public void RunSimulationStep()
+  {
     Array.Copy(_grid, _nextGrid, _grid.Length);
     bool reverse = frameCount % 2 == 0;
 
-    // Iterate bottom-to-top to prevent "teleporting" sand
     for (int y = Height - 1; y >= 0; y--)
     {
-      if (reverse) 
+      if (reverse)
       {
         for (int x = 0; x < Width; x++)
         {
-          MainLoop(x, y);
+          UpdateCell(x, y);
         }
       }
       else
       {
         for (int x = Width - 1; x >= 0; x--)
         {
-          MainLoop(x, y);
+          UpdateCell(x, y);
         }
       }
     }
 
     frameCount++;
-    // Apply all changes to the main grid
+  }
+
+  public void CommitNextGrid()
+  {
     var temp = _grid;
     _grid = _nextGrid;
     _nextGrid = temp;
   }
 
-  public void MainLoop(int x, int y)
+  public void UpdateCell(int x, int y)
   {
     Particle p = _grid[x, y];
     if (p.Type == ParticleType.Air) return;
-    if (p.Type == ParticleType.Sand || p.Type == ParticleType.Water || p.Type == ParticleType.Fire || p.Type == ParticleType.Smoke)
+
+    if (p.Type == ParticleType.Sand ||
+        p.Type == ParticleType.Water ||
+        p.Type == ParticleType.Fire ||
+        p.Type == ParticleType.Smoke)
     {
-      if (p.Type == ParticleType.Water) ParticleRender.DepthCalculate(x, y, this);
-      else if (p.Type == ParticleType.Fire) ParticleRender.CrammedCalculate(x, y, this);
       PhysicsHandler.UpdateParticle(x, y, this);
     }
   }
-
-  
 
   // --- Helper Methods for PhysicsHandler ---
 
@@ -162,21 +169,29 @@ public class World
 
   //Visualiser helper Methods
 
-  public void UpdateWaterVisuals(int x, int y, byte depth, Color color)
+  public void SetParticleColor(int x, int y, Color color)
   {
-    if (IsInBounds(x, y))
+    if (!IsInBounds(x, y)) return;
+    _grid[x, y].Color = color;
+  }
+
+  public void SetParticleDepth(int x, int y, byte depth)
+  {
+    if (!IsInBounds(x, y)) return;
+    _grid[x, y].Depth = depth;
+  }
+
+  public void SetParticleRenderState(int x, int y, Color color, byte? depth = null)
+  {
+    if (!IsInBounds(x, y)) return;
+
+    _grid[x, y].Color = color;
+    if (depth.HasValue)
     {
-        _grid[x, y].Depth = depth;
-        _grid[x, y].Color = color;
+      _grid[x, y].Depth = depth.Value;
     }
   }
 
-  public void UpdateFireVisuals(int x, int y, Color color)
-  {
-    if (IsInBounds(x, y))
-    {
-        _grid[x, y].Color = color;
-    }
-  }
+
   public Particle[,] GetGrid() => _grid;
 }
