@@ -18,14 +18,14 @@ public static class PhysicsMovement
         return 0;
     }
 
-    public static bool TryVertical(int x, int y, int verticalDir, World world, ref Particle p, MovePredicate canMove, float acceleration, float maxVelocity)
+    public static bool TryVertical(int x, int y, int verticalDir, World world, Particle p, MovePredicate canMove, float acceleration, float maxVelocity)
     {
         if (!canMove(x, y + verticalDir)) return false;
 
         p.IsFalling = true;
-        if (p.VelocityY < maxVelocity) p.VelocityY += acceleration;
+        if (p.Velocity.Y < maxVelocity) p.Velocity.Y += acceleration;
 
-        int steps = (int)Math.Max(1, p.VelocityY);
+        int steps = (int)Math.Max(1, p.Velocity.Y);
         for (int d = steps; d > 0; d--)
         {
             int targetY = y + (d * verticalDir);
@@ -39,14 +39,14 @@ public static class PhysicsMovement
         return false;
     }
 
-    public static bool TryVerticalWithSway(int x, int y, int swayDir, int verticalDir, World world, ref Particle p, MovePredicate canMove, float acceleration, float maxVelocity)
+    public static bool TryVerticalWithSway(int x, int y, int swayDir, int verticalDir, World world, Particle p, MovePredicate canMove, float acceleration, float maxVelocity)
     {
         int targetX = x + swayDir;
         if (!canMove(targetX, y + verticalDir)) return false;
 
-        if (p.VelocityY < maxVelocity) p.VelocityY += acceleration;
+        if (p.Velocity.Y < maxVelocity) p.Velocity.Y += acceleration;
 
-        int steps = (int)Math.Max(1, p.VelocityY);
+        int steps = (int)Math.Max(1, p.Velocity.Y);
         for (int d = steps; d > 0; d--)
         {
             int targetY = y + (d * verticalDir);
@@ -60,38 +60,38 @@ public static class PhysicsMovement
         return false;
     }
 
-    public static bool TryDensityVertical(int x, int y, int verticalDir, World world, ref Particle p, float slowdown = 0.2f)
+    public static bool TryDensityVertical(int x, int y, int verticalDir, World world, Particle p, float slowdown = 0.2f)
     {
         int targetY = y + verticalDir;
         if (!world.CanMoveDensity(x, targetY, p)) return false;
 
         p.IsFalling = true;
-        if (p.VelocityY > 1.2f) p.VelocityY -= slowdown;
+        if (p.Velocity.Y > 1.2f) p.Velocity.Y -= slowdown;
         p.SettleCount = 0;
         world.SwapParticle(x, y, x, targetY, p);
         return true;
     }
 
-    public static bool TryDensityVerticalWithSway(int x, int y, int swayDir, int verticalDir, World world, ref Particle p, float velocityChange = 0.2f)
+    public static bool TryDensityVerticalWithSway(int x, int y, int swayDir, int verticalDir, World world, Particle p, float velocityChange = 0.2f)
     {
         int targetX = x + swayDir;
         int targetY = y + verticalDir;
         if (!world.CanMoveDensity(targetX, targetY, p)) return false;
 
         p.SettleCount = 0;
-        if (p.VelocityY > 1.2f) p.VelocityY += velocityChange;
+        if (p.Velocity.Y > 1.2f) p.Velocity.Y += velocityChange;
         world.SwapParticle(x, y, targetX, targetY, p);
         return true;
     }
 
-    public static bool TryScatterDiagonal(int x, int y, int verticalDir, World world, ref Particle p, MovePredicate diagonalMove, MovePredicate sideMove, bool resetSettle = true)
+    public static bool TryScatterDiagonal(int x, int y, int verticalDir, World world, Particle p, MovePredicate diagonalMove, MovePredicate sideMove, bool resetSettle = true)
     {
         int dir = RandomDir();
-        if (TryScatterDirection(x, y, dir, verticalDir, world, ref p, diagonalMove, sideMove, resetSettle)) return true;
-        return TryScatterDirection(x, y, -dir, verticalDir, world, ref p, diagonalMove, sideMove, resetSettle);
+        if (TryScatterDirection(x, y, dir, verticalDir, world, p, diagonalMove, sideMove, resetSettle)) return true;
+        return TryScatterDirection(x, y, -dir, verticalDir, world, p, diagonalMove, sideMove, resetSettle);
     }
 
-    private static bool TryScatterDirection(int x, int y, int dir, int verticalDir, World world, ref Particle p, MovePredicate diagonalMove, MovePredicate sideMove, bool resetSettle)
+    private static bool TryScatterDirection(int x, int y, int dir, int verticalDir, World world, Particle p, MovePredicate diagonalMove, MovePredicate sideMove, bool resetSettle)
     {
         int targetX = x + dir;
         int targetY = y + verticalDir;
@@ -104,7 +104,7 @@ public static class PhysicsMovement
         return true;
     }
 
-    public static bool TrySlideHorizontal(int x, int y, World world, ref Particle p, MovePredicate canMove, bool increaseSettleOnSlide = false)
+    public static bool TrySlideHorizontal(int x, int y, World world, Particle p, MovePredicate canMove, bool increaseSettleOnSlide = false)
     {
         int dir = RandomDir();
         if (TrySlideDirection(x, y, dir, world, ref p, canMove, increaseSettleOnSlide)) return true;
@@ -121,7 +121,7 @@ public static class PhysicsMovement
         return true;
     }
 
-    public static bool TryFlowSide(int startX, int startY, int maxRange, World world, ref Particle p)
+    public static bool TryFlowSide(int startX, int startY, int maxRange, World world, Particle p)
     {
         int leftAirScore = maxRange;
         int rightAirScore = maxRange;
@@ -160,11 +160,11 @@ public static class PhysicsMovement
         return false;
     }
 
-    public static void SettleInPlace(int x, int y, World world, ref Particle p, bool zeroVelocityX = true)
+    public static void SettleInPlace(int x, int y, World world, Particle p, bool zeroVelocityX = true)
     {
         p.SettleCount++;
-        p.VelocityY = 0;
-        if (zeroVelocityX) p.VelocityX = 0;
+        p.Velocity.Y = 0;
+        if (zeroVelocityX) p.Velocity.X = 0;
         p.IsFalling = false;
         world.SetNextGrid(x, y, p);
     }

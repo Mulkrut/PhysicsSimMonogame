@@ -15,12 +15,12 @@ public class Game1 : Game
   private Brush _brush;
   private Texture2D _gridTexture;
   private Color[] _colorBuffer;
-  
+
   private const int GridWidth = 300;
   private const int GridHeight = 150;
   private const int Scale = 4; // Scale up the pixels for visibility
 
-    public Game1()
+  public Game1()
   {
     _graphics = new GraphicsDeviceManager(this);
     Content.RootDirectory = "Content";
@@ -35,7 +35,7 @@ public class Game1 : Game
   {
     _world = new World(GridWidth, GridHeight);
     _brush = new Brush();
-    
+
     // The texture we use to "paint" the grid to the screen
     _gridTexture = new Texture2D(GraphicsDevice, GridWidth, GridHeight);
     _colorBuffer = new Color[GridWidth * GridHeight];
@@ -69,22 +69,21 @@ public class Game1 : Game
       for (int x = 0; x < GridWidth; x++)
       {
         Particle p = currentGrid[x, y];
-        Color cellColor = (p.Type == ParticleType.Air) ? Color.Transparent : p.Color;
+        Color cellColor = (p == null) ? Color.Transparent : p.Color;
 
         _colorBuffer[y * GridWidth + x] = cellColor;
+      }
     }
-  }
 
-  // 2. Upload color data to the GPU texture
-  _gridTexture.SetData(_colorBuffer);
+    // 2. Upload color data to the GPU texture
+    _gridTexture.SetData(_colorBuffer);
 
-  // 3. Draw the texture scaled up to fill the screen
-  _spriteBatch.Begin(samplerState: SamplerState.PointClamp); // PointClamp keeps pixels sharp
-  _spriteBatch.Draw(_gridTexture, 
-  new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
-  _spriteBatch.End();
+    // 3. Draw the texture scaled up to fill the screen
+    _spriteBatch.Begin(samplerState: SamplerState.PointClamp); // PointClamp keeps pixels sharp
+    _spriteBatch.Draw(_gridTexture,
+    new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
+    _spriteBatch.End();
 
-  base.Draw(gameTime);
+    base.Draw(gameTime);
   }
 }
-

@@ -4,7 +4,6 @@ using System;
 
 namespace Physics_Sim;
 
-
 public class UserInput
 {
 
@@ -19,13 +18,13 @@ public class UserInput
     if (kbState.IsKeyDown(Keys.Down) && brush.Size > 0) brush.Size--;
 
     // Changing brush type
-    if (kbState.IsKeyDown(Keys.Q)) brush.SelectedType = ParticleType.Sand;
-    if (kbState.IsKeyDown(Keys.W)) brush.SelectedType = ParticleType.Water;
-    if (kbState.IsKeyDown(Keys.E)) brush.SelectedType = ParticleType.Air;
-    if (kbState.IsKeyDown(Keys.S)) brush.SelectedType = ParticleType.Stone;
-    if (kbState.IsKeyDown(Keys.A)) brush.SelectedType = ParticleType.Fire;
-    if (kbState.IsKeyDown(Keys.D)) brush.SelectedType = ParticleType.Wood;
-    if (kbState.IsKeyDown(Keys.F)) brush.SelectedType = ParticleType.Smoke;
+    if (kbState.IsKeyDown(Keys.Q)) brush.SelectedType = new Sand();
+    if (kbState.IsKeyDown(Keys.W)) brush.SelectedType = new Water();
+    if (kbState.IsKeyDown(Keys.E)) brush.SelectedType = null;
+    if (kbState.IsKeyDown(Keys.S)) brush.SelectedType = new Stone();
+    if (kbState.IsKeyDown(Keys.A)) brush.SelectedType = new Fire();
+    if (kbState.IsKeyDown(Keys.D)) brush.SelectedType = new Wood();
+    if (kbState.IsKeyDown(Keys.F)) brush.SelectedType = new Smoke();
 
     //Shortcuts
     //Reset
@@ -35,7 +34,7 @@ public class UserInput
       {
         for (int x = 0; x < world.Width; x++)
         {
-          world.SetCell(x, y, ParticleType.Air);
+          world.SetCell(x, y, null);
         }
       }
     }

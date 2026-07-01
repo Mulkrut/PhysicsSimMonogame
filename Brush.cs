@@ -7,25 +7,25 @@ namespace Physics_Sim;
 
 public class Brush
 {
-    public int Size = 5; // The radius of the sphere
-    public ParticleType SelectedType = ParticleType.Wood;
+  public int Size = 5; // The radius of the sphere
+  public Particle SelectedType = new Water();
 
-    public void Draw(int mouseX, int mouseY, World world)
+  public void Draw(int mouseX, int mouseY, World world)
+  {
+    for (int y = -Size; y <= Size; y++)
     {
-      for (int y = -Size; y <= Size; y++)
+      for (int x = -Size; x <= Size; x++)
       {
-        for (int x = -Size; x <= Size; x++)
+        // Check if the current point is inside the circle radius
+        if (x * x + y * y <= Size * Size)
         {
-            // Check if the current point is inside the circle radius
-            if (x* x + y* y <= Size* Size)
-            {
-                int targetX = mouseX + x;
-                int targetY = mouseY + y;
+          int targetX = mouseX + x;
+          int targetY = mouseY + y;
 
-                // Set the cell in the world
-                world.SetCell(targetX, targetY, SelectedType);
-            }
+          // Set the cell in the world
+          world.SetCell(targetX, targetY, SelectedType?.Clone());
         }
       }
     }
+  }
 }

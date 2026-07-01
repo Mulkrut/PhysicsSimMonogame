@@ -13,7 +13,7 @@ public class World
 
   private Particle[,] _grid;
   private Particle[,] _nextGrid;
-  
+
   public World(int width, int height)
   {
     Width = width;
@@ -65,15 +65,9 @@ public class World
   public void UpdateCell(int x, int y)
   {
     Particle p = _grid[x, y];
-    if (p.Type == ParticleType.Air) return;
+    if (p == null) return;
 
-    if (p.Type == ParticleType.Sand ||
-        p.Type == ParticleType.Water ||
-        p.Type == ParticleType.Fire ||
-        p.Type == ParticleType.Smoke)
-    {
-      PhysicsHandler.UpdateParticle(x, y, this);
-    }
+    p.Update(x, y, this);
   }
 
   // --- Helper Methods for PhysicsHandler ---
@@ -81,89 +75,86 @@ public class World
   public bool CanMove(int x, int y)
   {
     return IsInBounds(x, y) &&
-           _grid[x, y].Type == ParticleType.Air &&
-           _nextGrid[x, y].Type == ParticleType.Air;
+           _grid[x, y] == null &&
+           _nextGrid[x, y] == null;
   }
 
 
   public bool CanMoveDensity(int x, int y, Particle p)
   {
     if (!IsInBounds(x, y)) return false;
-    if (GetParticle(x, y).Density == p.Density) return false;
-    else return _grid[x, y].Density < p.Density && _nextGrid[x, y].Density < p.Density;
+    
+    float gridDensity = _grid[x, y]?.Density ?? 0f;
+    float nextDensity = _nextGrid[x, y]?.Density ?? 0f;
+    
+    if (gridDensity == p.Density) return false;
+    return gridDensity < p.Density && nextDensity < p.Density;
   }
 
   //checks if target is valid (air or water)
   public bool CanMoveLiquid(int x, int y)
   {
     return IsInBounds(x, y) &&
-           (_grid[x, y].Type == ParticleType.Air || _grid[x, y].Type == ParticleType.Water) &&
-           (_nextGrid[x, y].Type == ParticleType.Air || _nextGrid[x, y].Type == ParticleType.Water);
+           (_grid[x, y] == null || _grid[x, y] is Water) &&
+           (_nextGrid[x, y] == null || _nextGrid[x, y] is Water);
   }
 
   public void MoveParticle(int x1, int y1, int x2, int y2, Particle p)
   {
-    _nextGrid[x1, y1] = Particle.Empty;
+    _nextGrid[x1, y1] = null;
     _nextGrid[x2, y2] = p;
 
     // Wake up the particle directly above the one that just moved
-    if (IsInBounds(x1, y1 - 1) && GetParticleType(x1, y1) != ParticleType.Fire)
+    if (p is Fire)
     {
-      _nextGrid[x1, y1 - 1].SettleCount = 0;
+        if (IsInBounds(x1, y1 - 1) && _nextGrid[x1, y1 - 1] != null)
+            _nextGrid[x1, y1 - 1].SettleCount = 0;
+        if (IsInBounds(x2 + 1, y2) && _nextGrid[x2 + 1, y2] != null)
+            _nextGrid[x2 + 1, y2].SettleCount = 0;
+        if (IsInBounds(x2 - 1, y2) && _nextGrid[x2 - 1, y2] != null)
+            _nextGrid[x2 - 1, y2].SettleCount = 0;
     }
-    if (IsInBounds(x2 + 1, y2) && GetParticleType(x1, y1) != ParticleType.Fire)
-      _nextGrid[x2 + 1, y2].SettleCount = 0;
-
-    if (IsInBounds(x2 - 1, y2) && GetParticleType(x1, y1) != ParticleType.Fire)
-      _nextGrid[x2 - 1, y2].SettleCount = 0;
   }
 
   public void DeleteParticle(int x, int y)
   {
-    _nextGrid[x, y] = Particle.Empty;
+    // C# GC automatically deletes the particle when no reference remains
+    _nextGrid[x, y] = null;
   }
 
   public void SwapParticle(int x1, int y1, int x2, int y2, Particle p)
   {
     Particle temp = GetParticle(x2, y2);
-    
+
     _nextGrid[x1, y1] = temp;
     _nextGrid[x2, y2] = p;
 
-    _nextGrid[x1, y1].SettleCount = 0;
-    _nextGrid[x2, y2].SettleCount = 0;
+    if (_nextGrid[x1, y1] != null) _nextGrid[x1, y1].SettleCount = 0;
+    if (_nextGrid[x2, y2] != null) _nextGrid[x2, y2].SettleCount = 0;
   }
 
 
   public void SetNextGrid(int x, int y, Particle p) => _nextGrid[x, y] = p;
 
 
-  public void SetNewNextGrid(int x, int y, ParticleType type)
+  public void SetNewNextGrid(int x, int y, Particle p)
   {
     if (!IsInBounds(x, y)) return;
     {
-      _nextGrid[x, y] = Particle.Create(type);
+      _nextGrid[x, y] = p;
     }
   }
 
-  public Particle GetParticle(int x, int y) => _grid[x, y];
-
-
-  public ParticleType GetParticleType(int x, int y)
-  {
-    if (IsInBounds(x, y)) return _grid[x, y].Type;
-  else return ParticleType.Air;
-  }
-
+  public Particle GetParticle(int x, int y) => IsInBounds(x, y) ? _grid[x, y] : null;
 
   public bool IsInBounds(int x, int y) =>
       x >= 0 && x < Width && y >= 0 && y < Height;
 
-  public void SetCell(int x, int y, ParticleType type)
+  public void SetCell(int x, int y, Particle p)
   {
     if (!IsInBounds(x, y)) return;
     {
-      _grid[x, y] = Particle.Create(type);
+      _grid[x, y] = p;
     }
   }
 
@@ -191,7 +182,6 @@ public class World
       _grid[x, y].Depth = depth.Value;
     }
   }
-
 
   public Particle[,] GetGrid() => _grid;
 }
